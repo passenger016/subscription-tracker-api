@@ -5,6 +5,7 @@ import { PORT } from './config/env.js';
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.route.js';
 import subscriptionRouter from './routes/subscription.routes.js';
+import connnectToDatabase from './database/mongodb.js';
 
 const app = express();
 
@@ -27,7 +28,10 @@ app.get('/', (req, res) => {
 
 // making the app listen to the port specified for incoming HTTP requests and handle them according to the routes defined
 app.listen(PORT, hostname, async () => {
-    console.log(`Server is running at http://${hostname}:${PORT}`)
+    console.log(`Server is running at http://${hostname}:${PORT}`);
+    // as soon as we start the server we can also start connecting to the database
+    await connnectToDatabase();
 })
+
 
 export default app;
