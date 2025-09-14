@@ -1,12 +1,13 @@
 import { Router } from "express";
+import { getUser, getUsers } from "../controllers/user.controller.js";
 
 const userRouter = Router();
 
 // Get all users -- ideally ADMIN only access
-userRouter.get('/', (req, res) => res.send({ title: "Get All Users" }));
+userRouter.get('/', getUsers);
 
 // Get user by a particular id
-userRouter.get('/:id', (req, res) => res.send({ title: "Get the user of a particular Id" }));
+userRouter.get('/:id', getUser);
 
 // Create a new user
 userRouter.post('/', (req, res) => res.send({ title: "CREATE a new user" }));
