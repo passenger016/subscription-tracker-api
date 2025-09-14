@@ -1,5 +1,5 @@
 import Router from 'express';
-import { signIn, signUp } from '../controllers/auth.controller.js';
+import { signIn, signOut, signUp } from '../controllers/auth.controller.js';
 
 // create a router instance and assigning it to authRouter instead of app
 // this was we can modularize our routes and use them in the main app instead of having to call the entire express app
@@ -9,6 +9,6 @@ const authRouter = Router();
 
 authRouter.post('/sign-in', signIn);
 authRouter.post('/sign-up', signUp);
-authRouter.post('/sign-out', (req, res) => res.send({ title: "Sign Out Route" }));
+authRouter.post('/sign-out', signOut);
 
 export default authRouter;

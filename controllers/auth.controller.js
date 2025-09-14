@@ -126,3 +126,20 @@ export const signIn = async (req, res, next) => {
         next(err);
     }
 }
+
+// function for handling signOut requests
+export const signOut = (req, res, next) => {
+     try {
+        // In JWT-based systems, sign-out is handled on the client side
+        // Optionally, you could implement server-side blacklisting here
+
+        // For now, just return a success response
+        // 200: OK
+        res.status(200).json({
+            success: true,
+            message: "User signed out successfully. Please remove token from client storage."
+        });
+    } catch (err) {
+        next(err);
+    }
+}
