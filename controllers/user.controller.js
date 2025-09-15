@@ -40,8 +40,11 @@ export const getUser = async (req, res, next) => {
         // the user is authenticated but since the ID doesn't match the request id they are not authorized to access the resource
         console.log(user._id.toString())
         console.log(req.params.id)
-        if (user._id.toString() !== req.params.id) res.status(403).json({ message: "Forbidden" });
+        // it is a good practice to explicitly use return after sending a response to ensure clarity and avoid unintended behavior.
+        if (user._id.toString() !== req.params.id) return res.status(403).json({ message: "Forbidden" });
 
+        // if the first condition is met, the 403 Forbidden response is sent, but the 200 OK response will still execute unless you explicitly return. This can cause errors like Cannot set headers after they are sent.
+        // hence an explicit return on the previous response will make sure that the flow ends there and this response is not executed 
         res.status(200).json({
             success: true,
             data: user 
