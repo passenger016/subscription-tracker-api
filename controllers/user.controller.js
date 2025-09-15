@@ -31,10 +31,20 @@ export const getUser = async (req, res, next) => {
             '-password' tells Mongoose to exclude the password field from the result.
             Because even though the user document in MongoDB has a password field, you don’t want to expose it in the API response.
         */
-        const user = await User.findById(req.params.id).select('-password');
+        // db lookup commented out since the 'auth.middleware.js', 'authorize' is already attaching the JWT verified user on the req.user.
+        // const user = await User.findById(req.params.id).select('-password'); 
+
+        const user = req.user;
+        // we cannot directly pass on the user as we need to the verify if the mounted user data matches with the 'id' in the HTTP request
+        // 401: FORBIDDEN, It indicates that the server understood the request, but refuses to authorize it
+        // the user is authenticated but since the ID doesn't match the request id they are not authorized to access the resource
+        console.log(user._id.toString())
+        console.log(req.params.id)
+        if (user._id.toString() !== req.params.id) res.status(403).json({ message: "Forbidden" });
+
         res.status(200).json({
             success: true,
-            data: { user }
+            data: user 
         })
     }
     catch (err) {
