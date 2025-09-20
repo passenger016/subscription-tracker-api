@@ -6,6 +6,7 @@ import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.route.js';
 import subscriptionRouter from './routes/subscription.routes.js';
 import connnectToDatabase from './database/mongodb.js';
+import arcJetMiddleware from './middlewares/arcjet.middleware.js';
 
 const app = express();
 
@@ -14,6 +15,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+// since arcjetMiddleware() is the middleware function itself we do not need to use paranthesis()
+// we would have used () if arcjetMiddleware was not the main function but instead returned the middleware
+app.use(arcJetMiddleware);
 
 // app.use is primarily used by express to register global middlewares, include middleware between URl and Controller in form of a chain
 // or in this case we are using it to mount a router on a sepcific route
