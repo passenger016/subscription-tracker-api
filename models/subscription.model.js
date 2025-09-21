@@ -65,7 +65,8 @@ const subscriptionSchema = new mongoose.Schema({
         // NOTE: there is no need for a mandatory renewal date because if it is missing then we will autocalculate it based on startDate and frequency
         // we will validate if the renewal date is after the start date
         validate: {
-            validator: (value) => {
+            // IMPORTANT: using a normal function instead of an arrow function because we need to access 'this' keyword which refers to the current document being validated
+            validator: function (value) {
                 // this.startDate will give us the start date of the current document
                 // without 'this' JS will search for startDate in the local scope of the validator function, it wouldn't find any and then throw an error
                 return value >= this.startDate;
@@ -84,22 +85,26 @@ const subscriptionSchema = new mongoose.Schema({
 
 // Now we will autocalculate the renewal date if it is missing
 subscriptionSchema.pre('save', function (next) {
+    // making a lookup table in form of key value pairs to calculate the renewal date
+    const renewalPeriods = {
+        daily: 1,
+        weekly: 7,
+        monthly: 30,
+        yearly: 365,
+    }
     // only run if renewal date doesn't exist for the current document
     if (!this.renewalDate) {
-        // making a lookup table in form of key value pairs to calculate the renewal date
-        const renewalPeriods = {
-            daily: 1,
-            weekly: 7,
-            monthly: 30,
-            yearly: 365,
+        // now we set the renewalDate for the current document
+        // since a renewalDate doesn't exist hence we are first setting it to the current date only and then we will calculate it from there
+        this.renewalDate = new Date(this.startDate);
+        const period = renewalPeriods[this.frequency.toLowerCase()]; // normalizing the frequency to lowercase to match the keys in the lookup table and to ensure case insensitivity
+        if (!period) {
+            return next(new Error(`Invalid frequency: ${this.frequency}`));
         }
+        // we then get the renewalDate and add the frequency to it based on the 'key' mentioned under 'frequency'
+        // EXAMPLE: if current date is 2025-06-12 and frequency is montly then we will add 30 days (monthly:30) to that date
+        this.renewalDate.setDate(this.renewalDate.getDate() + period);
     }
-    // now we set the renewalDate for the current document
-    // since a renewalDate doesn't exist hence we are first setting it to the current date only and then we will calculate it from there
-    this.renewalDate = new Date(this.Date);
-    // we then get the renewalDate and add the frequency to it based on the 'key' mentioned under 'frequency'
-    // EXAMPLE: if current date is 2025-06-12 and frequency is montly then we will add 30 days (monthly:30) to that date
-    this.renewalDate.setDate(this.renewalDate.getDate() + renewalPeriods[this.frequency]);
 
     // if renewalDate has passed the current date as of the upload of the subscription then we will autoupdate the status
     if (this.renewalDate < new Date()) {
