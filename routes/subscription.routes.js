@@ -1,4 +1,6 @@
 import { Router } from "express";
+import authorize from "../middlewares/auth.middleware.js";
+import { createSubscription, getAllSubscriptionsOfAUser } from "../controllers/subscription.controller.js";
 
 const subscriptionRouter = Router();
 
@@ -15,7 +17,7 @@ subscriptionRouter.get('/upcoming-renewals', (req, res) => res.send({ title: "Ge
 subscriptionRouter.get('/:id', (req, res) => res.send({ title: "Get all the Subscriptions of a subscription ID" }));
 
 // Create a new subscription for a user
-subscriptionRouter.post('/', (req, res) => res.send({ title: "Create a new Subscription for a user" }));
+subscriptionRouter.post('/', authorize, createSubscription);
 
 // Update an existing subscription information via their id
 subscriptionRouter.put('/:id', (req, res) => res.send({ title: "Update a Subscription" }));
@@ -24,7 +26,7 @@ subscriptionRouter.put('/:id', (req, res) => res.send({ title: "Update a Subscri
 subscriptionRouter.delete('/:id', (req, res) => res.send({ title: "Delete a Subscription" }));
 
 // Get all the subscriptions of a particular user id unlike the previous one which was for a particular subscription id
-subscriptionRouter.get('/user/:id', (req, res) => res.send({ title: "Get all the Subscriptions of a user ID" }));
+subscriptionRouter.get('/users/:id', authorize, getAllSubscriptionsOfAUser);
 
 // Cancel a particular user subscriptions via their subscription id
 subscriptionRouter.delete('/:id/cancel', (req, res) => res.send({ title: "Cancel a Subscription" }));
