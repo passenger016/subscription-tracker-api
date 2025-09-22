@@ -5,7 +5,7 @@ const WorkFlowRouter = Router();
 
 // A test route to check if the workflow routes are working
 // updating it with the sendReminder controller function
-WorkFlowRouter.get('/', sendReminder);
+WorkFlowRouter.post('/subscriptions/reminder', sendReminder);
 
 export default WorkFlowRouter;
 // now add this router to the main app in app.js
