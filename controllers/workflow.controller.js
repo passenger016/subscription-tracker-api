@@ -1,4 +1,10 @@
-import { serve } from "@upstash/workflow/express";
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+/*
+    Upstash exports a named export (serve). Without {}, serve is actually an object, not the function. That’s why when you try to call it, you get “not a function”.
+    Hence we will use the {} to destructure the named export serve from the module.
+*/
+const { serve } = require("@upstash/workflow/express");
 import Subscription from "../models/subscription.model.js";
 import dayjs from "dayjs";
 
@@ -31,16 +37,16 @@ export const sendReminder = serve(async (context) => {
     // if the subscription has not expired then we will calculate the number of days left for renewal
     // we will set the workflow to sleep using a custom function sleepUntilReminder()
     // we will trigger the workflow on the day when the reminder has to be sent using a custom function triggerReminder()
-    for(const daysBefore of REMINDERS) {
+    for (const daysBefore of REMINDERS) {
         // the substract manipulation function of day.js returns a new dayjs object and does not mutate the original one
         // it substracts a certain unit of time from the current dayjs object and returns a new one
         // in our implemenetation we have substracted one daysBefore in the units of 'day' from the renewalDate
         const reminderDate = renewalDate.subtract(daysBefore, 'day');
 
         // checking the renewalDate if after the current date for each daysBefore in the REMINDERS array
-        if(reminderDate.isAfter(dayjs())) {
+        if (reminderDate.isAfter(dayjs())) {
             // then we will put the workflow to sleep until the reminderDate
-            await sleepUntilReminder(context,`Reminder ${daysBefore} days before renewal`, reminderDate);
+            await sleepUntilReminder(context, `Reminder ${daysBefore} days before renewal`, reminderDate);
         }
         // otherwise we wil trigger the workflow
         await triggerReminder(context, subscription, daysBefore);
