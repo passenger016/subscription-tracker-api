@@ -5,6 +5,7 @@ import { PORT } from './config/env.js';
 import authRouter from './routes/auth.routes.js';
 import userRouter from './routes/user.route.js';
 import subscriptionRouter from './routes/subscription.routes.js';
+import WorkFlowRouter from './routes/workflow.routes.js';
 import connnectToDatabase from './database/mongodb.js';
 import arcJetMiddleware from './middlewares/arcjet.middleware.js';
 
@@ -26,6 +27,7 @@ app.use('/api/v1/auth', authRouter);
 // NOTE: keeping the naming plural (subscription(s)) is always a good practise for redability in REST API.
 app.use('/api/v1/users', userRouter)
 app.use('/api/v1/subscriptions', subscriptionRouter);
+app.use('/api/v1/workflows', WorkFlowRouter);
 
 // creating the first route for the home page of the application that the user will hit
 app.get('/', (req, res) => {
