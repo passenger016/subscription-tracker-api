@@ -13,7 +13,7 @@ const connnectToDatabase = async () => {
         await mongoose.connect(DB_URI);
         console.log(`Connected to Database in ${NODE_ENV} mode`)
     }
-    catch (e) {
+    catch (error) {
         // when we want to log the error for debugging/observality but don't necessarily want to stop execution
         console.error("Error conneting to database:", error);
 
