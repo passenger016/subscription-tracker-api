@@ -49,7 +49,7 @@ export const sendReminder = serve(async (context) => {
             await sleepUntilReminder(context, `Reminder ${daysBefore} days before renewal`, reminderDate);
         }
         // otherwise we wil trigger the workflow
-        await triggerReminder(context, subscription, daysBefore);
+        await triggerReminder(context, `Reminder ${daysBefore} days before`);
     }
 })
 
@@ -59,7 +59,7 @@ const fetchSubscription = async (context, subscriptionId) => {
         return await Subscription.findById(subscriptionId).populate('user', 'name email');
     });
 }
-
+// function for putting the workflow to sleep until the reminder date
 const sleepUntilReminder = async (context, label, date) => {
     // logging the sleep time for debugging purposes
     console.log(`Sleeping until ${label} and reminder at ${date.format('DD-MM-YYYY')}`);
@@ -73,4 +73,11 @@ const sleepUntilReminder = async (context, label, date) => {
     // the 'second parameter' is the date until which the workflow has to sleep
     // you can also use units such as "1d" for one day, "2h" for two hours etc instead of a date
     await context.sleepUntil(label, date.toDate());
+}
+// function for triggering the reminder
+const triggerReminder = async (context, label) => {
+    return await context.run(label, async () => {
+        console.log(`Triggering reminder: ${label}`);
+        // TODO: Implement your reminder logic here, e.g., sending an email or notification
+    });
 }
