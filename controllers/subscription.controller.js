@@ -12,22 +12,25 @@ export const createSubscription = async (req, res, next) => {
         })
         // NOTE: before sending the response we will trigger the workflow to send reminders for this subscription
         // importing a workflow client
-        await WorkFlowClient.trigger(
+        const workFlowResponse = await WorkFlowClient.trigger(
             {
                 // the url for development server will be different from the production server
-                url:`${SERVER_URL}/api/v1/workflows/subscription/reminder`,
-                body:{
+                url: `${SERVER_URL}/api/v1/workflows/subscriptions/reminder`,
+                body: {
                     subscriptionId: subscription._id
                 },
-                headers:{
-                    'content-type':'application/json'
+                headers: {
+                    'content-type': 'application/json'
                 },
                 retries: 0,
             }
         )
+        // the response from the workflow trigger is not very useful since it only contains the workflowId and not the actual response from the workflow
+        // but we will log it for debugging purpose
+        console.log('Workflow Response:', workFlowResponse);
 
         // if the request is successful we will return the subscription object with a 201 status code
-        return res.status(201).json({ success: true, data: subscription })
+        return res.status(201).json({ success: true, data: { subscription, workFlowRunID: workFlowResponse.workflowRunId } });
     }
     catch (err) {
         next(err);
@@ -35,8 +38,8 @@ export const createSubscription = async (req, res, next) => {
 }
 // for getting all subscriptions a user has created (this is not for the subscriptionId rather for the userId)
 export const getAllSubscriptionsOfAUser = async (req, res, next) => {
-    try{
-        if(req.user.id!==req.params.id){
+    try {
+        if (req.user.id !== req.params.id) {
             const error = new Error("You are not authorized to view these subscriptions");
             // the client is authenticated but does not have the necessary permissions to access the resource
             error.status = 403;
@@ -46,7 +49,7 @@ export const getAllSubscriptionsOfAUser = async (req, res, next) => {
         const allSubscriptions = await Subscription.find({ user: req.params.id });
         return res.status(200).json({ success: true, data: allSubscriptions });
     }
-    catch(err){
+    catch (err) {
         next(err);
     }
 }
