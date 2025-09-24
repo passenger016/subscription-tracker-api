@@ -7,6 +7,7 @@ const require = createRequire(import.meta.url);
 const { serve } = require("@upstash/workflow/express");
 import Subscription from "../models/subscription.model.js";
 import dayjs from "dayjs";
+import { sendReminderEmail } from '../utils/send-email.js';
 
 // NOTE: in order to trigger the workflow we will do it right after the subscription gets created
 // in the file name '/controllers/subscription.controller.js' in the createSubscription() function
@@ -49,7 +50,7 @@ export const sendReminder = serve(async (context) => {
             await sleepUntilReminder(context, `Reminder ${daysBefore} days before renewal`, reminderDate);
         }
         // otherwise we wil trigger the workflow
-        await triggerReminder(context, `Reminder ${daysBefore} days before`);
+        await triggerReminder(context, `${daysBefore} days before reminder`, subscription);
     }
 })
 
@@ -75,9 +76,15 @@ const sleepUntilReminder = async (context, label, date) => {
     await context.sleepUntil(label, date.toDate());
 }
 // function for triggering the reminder
-const triggerReminder = async (context, label) => {
+const triggerReminder = async (context, label, subscription) => {
     return await context.run(label, async () => {
         console.log(`Triggering reminder: ${label}`);
-        // TODO: Implement your reminder logic here, e.g., sending an email or notification
+        // Sending the email using the custom function created from the file '/utils/send-email.js'
+        console.log(`Preparing to send email for the following info: to:${subscription.user.email}, type:${label}, subscription:${subscription}`)
+        await sendReminderEmail({
+            to: subscription.user.email,
+            type: label,
+            subscription
+        })
     });
 }
